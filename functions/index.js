@@ -434,6 +434,7 @@ exports.exportCSVData = functions.https.onRequest(async (req, res) => {
           risk: data.risk,
           points: data.points ? data.points : 0,
           status: data.status,
+          notes: data.notes ? data.notes : "",
           createdAt: data.createdAt ? data.createdAt.toDate()
               .toLocaleDateString("en-US", {
                 month: "short",

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cleanlet/views/review_inlet_job.dart';
 import 'package:cleanlet/views/test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -142,7 +143,11 @@ class _JobStartPageState extends ConsumerState<CleaningPhotoView> {
                             MaterialPageRoute(builder: (context) => TestPage(widget.inlet)),
                           );
                         } else if (widget.photoToTake == 'After') {
-                          await _completeJob(ref);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ReviewInletJob(widget.inlet)),
+                          );
+                          // await _completeJob(ref);
                         }
                       },
                 icon: const Icon(Icons.check),
