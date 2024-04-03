@@ -72,18 +72,22 @@ class _ReviewInletJobState extends ConsumerState<ReviewInletJob> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () async {
-                                      _selectBeforePhoto(ImageSource.camera);
-                                    },
+                                    onPressed: _isUploading
+                                        ? null
+                                        : () async {
+                                            _selectBeforePhoto(ImageSource.camera);
+                                          },
                                     child: const Text('Take a picture'),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () async {
-                                      _selectBeforePhoto(ImageSource.gallery);
-                                    },
+                                    onPressed: _isUploading
+                                        ? null
+                                        : () async {
+                                            _selectBeforePhoto(ImageSource.gallery);
+                                          },
                                     child: const Text('Choose an image'),
                                   ),
                                 ),
@@ -119,18 +123,22 @@ class _ReviewInletJobState extends ConsumerState<ReviewInletJob> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () async {
-                                      _selectAfterPhoto(ImageSource.camera);
-                                    },
+                                    onPressed: _isUploading
+                                        ? null
+                                        : () async {
+                                            _selectAfterPhoto(ImageSource.camera);
+                                          },
                                     child: const Text('Take a picture'),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () async {
-                                      _selectAfterPhoto(ImageSource.gallery);
-                                    },
+                                    onPressed: _isUploading
+                                        ? null
+                                        : () async {
+                                            _selectAfterPhoto(ImageSource.gallery);
+                                          },
                                     child: const Text('Choose an image'),
                                   ),
                                 ),
@@ -149,9 +157,11 @@ class _ReviewInletJobState extends ConsumerState<ReviewInletJob> {
           Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: ElevatedButton(
-                onPressed: () async {
-                  await _completeJob(ref);
-                },
+                onPressed: _isUploading
+                    ? null
+                    : () async {
+                        await _completeJob(ref);
+                      },
                 child: Text('Complete Job'),
               ))
         ])));
