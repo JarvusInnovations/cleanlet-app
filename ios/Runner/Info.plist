@@ -51,6 +51,13 @@
   <string>Access to photos of cleaned drains</string>
   <key>NSCameraUsageDescription</key>
   <string>Access to camera to take photos of cleaned drains</string>
+  <key>NSLocalNetworkUsageDescription</key> 
+<string>Allow the debugger to connect over your local network.</string> 
+<key>NSBonjourServices</key>
+    <array>
+        <string>_dartVmService._tcp</string>
+        <string>_dartobservatory._tcp</string>
+    </array>
   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
   <string>Access location to show local drains to clean</string>
   <key>ITSAppUsesNonExemptEncryption</key>

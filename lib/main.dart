@@ -161,12 +161,16 @@ class _MyAppState extends ConsumerState<MyApp> {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
       var data = userDoc.data();
+      print("Pushing some data");
+      print(data);
       if (data is Map<String, dynamic>) {
         return data['points'] ?? 0; // Replace 'points' with your field name in Firestore
       } else {
+        print('User document data is not a valid map');
         return 0;
       }
     } catch (e) {
+      print(e.toString());
       // Handle any errors here
       return 0;
     }

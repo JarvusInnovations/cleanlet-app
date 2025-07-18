@@ -14,10 +14,10 @@ class ImageCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlutterCarousel(
-      options: CarouselOptions(
+      options: FlutterCarouselOptions(
         height: 200,
         showIndicator: true,
-        slideIndicator: const CircularSlideIndicator(),
+        slideIndicator: CircularSlideIndicator(),
         enableInfiniteScroll: true,
       ),
       items: imgList.map((i) {

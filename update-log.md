@@ -1,0 +1,820 @@
+## Update Log
+
+- Original Flutter Version: 3.19.5
+- Original Dart Version: 3.3.3 (stable) (Tue Mar 26 14:21:33 2024 +0000) on "macos_x64"
+- Key dependencies before update:
+  - flutter 0.0.0
+    - characters 1.3.0
+    - collection 1.18.0
+    - material_color_utilities 0.8.0
+    - meta 1.11.0
+    - vector_math 2.1.4
+    - sky_engine any
+  - firebase_core 2.27.1
+    - firebase_core_platform_interface ^5.0.0
+    - firebase_core_web ^2.12.0
+    - flutter any
+    - meta ^1.8.0
+- firebase_crashlytics 3.4.19
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - firebase_crashlytics_platform_interface ^3.6.26
+  - flutter any
+  - stack_trace ^1.10.0
+- firebase_analytics 10.8.10
+  - firebase_analytics_platform_interface ^3.9.10
+  - firebase_analytics_web ^0.5.5+22
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - flutter any
+- firebase_auth 4.17.9
+  - firebase_auth_platform_interface ^7.1.9
+  - firebase_auth_web ^5.10.0
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - flutter any
+  - meta ^1.8.0
+- cloud_firestore 4.15.9
+  - cloud_firestore_platform_interface ^6.1.10
+  - cloud_firestore_web ^3.10.9
+  - collection ^1.0.0
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - flutter any
+  - meta ^1.8.0
+- firebase_ui_auth 1.13.1
+  - email_validator ^2.1.17
+  - firebase_auth ^4.17.5
+  - firebase_core ^2.25.4
+  - firebase_dynamic_links ^5.4.14
+  - firebase_ui_localizations ^1.10.2
+  - firebase_ui_oauth ^1.5.1
+  - firebase_ui_shared ^1.4.1
+  - flutter any
+  - flutter_localizations any
+  - meta ^1.10.0
+- flutter_carousel_widget 2.2.0
+  - flutter any
+- image_picker 1.0.7
+  - flutter any
+  - image_picker_android ^0.8.7
+  - image_picker_for_web >=2.2.0 <4.0.0
+  - image_picker_ios ^0.8.8
+  - image_picker_linux ^0.2.1
+  - image_picker_macos ^0.2.1
+  - image_picker_platform_interface ^2.8.0
+  - image_picker_windows ^0.2.1
+- firebase_messaging 14.7.20
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - firebase_messaging_platform_interface ^4.5.28
+  - firebase_messaging_web ^3.7.0
+  - flutter any
+  - meta ^1.8.0
+- google_maps_flutter 2.6.0
+  - flutter any
+  - google_maps_flutter_android ^2.7.0
+  - google_maps_flutter_ios ^2.5.0
+  - google_maps_flutter_platform_interface ^2.5.0
+  - google_maps_flutter_web ^0.5.6
+- geolocator 11.0.0
+  - flutter any
+  - geolocator_platform_interface ^4.1.0
+  - geolocator_android ^4.3.0
+  - geolocator_apple ^2.3.0
+  - geolocator_web ^3.0.0
+  - geolocator_windows ^0.2.2
+- flutter_riverpod 2.5.1
+  - collection ^1.15.0
+  - flutter any
+  - meta ^1.4.0
+  - riverpod 2.5.1
+  - state_notifier >=0.7.2 <2.0.0
+- url_launcher 6.3.1
+  - flutter any
+  - url_launcher_android ^6.3.0
+  - url_launcher_ios ^6.2.4
+  - url_launcher_linux ^3.1.0
+  - url_launcher_macos ^3.1.0
+  - url_launcher_platform_interface ^2.3.0
+  - url_launcher_web ^2.2.0
+  - url_launcher_windows ^3.1.0
+- map_launcher 3.2.0
+  - flutter any
+- firebase_storage 11.6.10
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - firebase_storage_platform_interface ^5.1.13
+  - firebase_storage_web ^3.8.0
+  - flutter any
+- shared_preferences 2.2.2
+  - flutter any
+  - shared_preferences_android ^2.1.0
+  - shared_preferences_foundation ^2.2.0
+  - shared_preferences_linux ^2.2.0
+  - shared_preferences_platform_interface ^2.3.0
+  - shared_preferences_web ^2.1.0
+  - shared_preferences_windows ^2.2.0
+- webview_flutter 4.7.0
+  - flutter any
+  - webview_flutter_android ^3.15.0
+  - webview_flutter_platform_interface ^2.10.0
+  - webview_flutter_wkwebview ^3.12.0
+- flutter_html 3.0.0-beta.2
+  - html ^0.15.3
+  - csslib ^0.17.2
+  - collection ^1.17.0
+  - list_counter ^1.0.2
+  - flutter any
+- dio 5.4.1
+  - async ^2.8.2
+  - http_parser ^4.0.0
+  - meta ^1.5.0
+  - path ^1.8.0
+- cupertino_icons 1.0.6
+- carousel_slider 4.2.1
+  - flutter any
+- dots_indicator 3.0.0
+  - flutter any
+
+dev dependencies:
+
+- flutter_test 0.0.0
+  - flutter any
+  - test_api 0.6.1
+  - matcher 0.12.16+1
+  - path 1.9.0
+  - fake_async 1.3.1
+  - clock 1.1.1
+  - stack_trace 1.11.1
+  - vector_math 2.1.4
+  - leak_tracker_flutter_testing 2.0.1
+  - async 2.11.0
+  - boolean_selector 2.1.1
+  - characters 1.3.0
+  - collection 1.18.0
+  - leak_tracker 10.0.0
+  - leak_tracker_testing 2.0.1
+  - material_color_utilities 0.8.0
+  - meta 1.11.0
+  - source_span 1.10.0
+  - stream_channel 2.1.2
+  - string_scanner 1.2.0
+  - term_glyph 1.2.1
+  - vm_service 13.0.0
+- custom_lint 0.6.4
+  - analyzer >=5.12.0 <7.0.0
+  - analyzer_plugin ^0.11.0
+  - args ^2.3.1
+  - async ^2.9.0
+  - ci ^0.1.0
+  - cli_util ^0.4.0
+  - collection ^1.16.0
+  - custom_lint_core 0.6.3
+  - freezed_annotation ^2.2.0
+  - json_annotation ^4.7.0
+  - meta ^1.7.0
+  - package_config ^2.0.2
+  - path ^1.8.0
+  - pub_semver ^2.1.1
+  - pubspec_parse ^1.2.0
+  - rxdart ^0.27.7
+  - uuid >=3.0.6 <5.0.0
+  - yaml ^3.1.1
+- riverpod_lint 2.3.10
+  - analyzer >=6.0.0 <7.0.0
+  - analyzer_plugin ^0.11.2
+  - collection ^1.16.0
+  - custom_lint_builder ^0.6.0
+  - meta ^1.7.0
+  - path ^1.8.1
+  - riverpod ^2.5.1
+  - riverpod_analyzer_utils ^0.5.1
+  - source_span ^1.8.0
+  - yaml ^3.1.1
+- flutter_lints 3.0.1
+  - lints ^3.0.0
+- flutter_launcher_icons 0.13.1
+  - args ^2.3.2
+  - checked_yaml ^2.0.2
+  - cli_util ^0.4.0
+  - image ^4.0.15
+  - json_annotation ^4.8.0
+  - path ^1.8.2
+  - yaml ^3.1.1
+
+transitive dependencies:
+
+- \_fe_analyzer_shared 67.0.0
+  - meta ^1.9.0
+- \_flutterfire_internals 1.3.26
+  - collection ^1.0.0
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - flutter any
+  - meta ^1.8.0
+- analyzer 6.4.1
+  - \_fe_analyzer_shared ^67.0.0
+  - collection ^1.17.0
+  - convert ^3.0.0
+  - crypto ^3.0.0
+  - glob ^2.0.0
+  - meta ^1.11.0
+  - package_config ^2.0.0
+  - path ^1.8.0
+  - pub_semver ^2.1.4
+  - source_span ^1.8.0
+  - watcher ^1.1.0
+  - yaml ^3.0.0
+- analyzer_plugin 0.11.3
+  - analyzer ^6.0.0
+  - collection ^1.15.0
+  - dart_style ^2.2.1
+  - pub_semver ^2.1.0
+  - yaml ^3.1.0
+- archive 3.4.10
+  - crypto ^3.0.3
+  - path ^1.8.0
+  - pointycastle ^3.7.3
+- args 2.4.2
+- async 2.11.0
+  - collection ^1.15.0
+  - meta ^1.1.7
+- boolean_selector 2.1.1
+  - source_span ^1.8.0
+  - string_scanner ^1.1.0
+- characters 1.3.0
+- checked_yaml 2.0.3
+  - json_annotation ^4.3.0
+  - source_span ^1.8.0
+  - yaml ^3.0.0
+- ci 0.1.0
+- cli_util 0.4.1
+  - meta ^1.3.0
+  - path ^1.8.0
+- clock 1.1.1
+- cloud_firestore_platform_interface 6.1.10
+  - \_flutterfire_internals ^1.3.26
+  - collection ^1.15.0
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- cloud_firestore_web 3.10.9
+  - \_flutterfire_internals ^1.3.26
+  - cloud_firestore_platform_interface ^6.1.10
+  - collection ^1.0.0
+  - firebase_core ^2.27.1
+  - firebase_core_web ^2.12.0
+  - flutter any
+  - flutter_web_plugins any
+  - js ^0.6.3
+- collection 1.18.0
+- convert 3.1.1
+  - typed_data ^1.3.0
+- cross_file 0.3.4+1
+  - meta ^1.3.0
+  - web ^0.5.0
+- crypto 3.0.3
+  - typed_data ^1.3.0
+- csslib 0.17.3
+  - source_span ^1.8.0
+- custom_lint_builder 0.6.4
+  - analyzer ^6.4.0
+  - analyzer_plugin ^0.11.0
+  - collection ^1.16.0
+  - custom_lint 0.6.4
+  - custom_lint_core 0.6.3
+  - glob ^2.1.1
+  - hotreloader >=3.0.5 <5.0.0
+  - meta ^1.7.0
+  - package_config ^2.1.0
+  - path ^1.8.0
+  - pubspec_parse ^1.2.0
+  - rxdart ^0.27.7
+- custom_lint_core 0.6.3
+  - analyzer >=5.12.0 <7.0.0
+  - analyzer_plugin ^0.11.0
+  - collection ^1.16.0
+  - glob ^2.1.2
+  - matcher ^0.12.0
+  - meta ^1.7.0
+  - package_config ^2.1.0
+  - path ^1.8.0
+  - pubspec_parse ^1.2.2
+  - source_span ^1.8.0
+  - yaml ^3.1.1
+- dart_style 2.3.6
+  - analyzer ^6.2.0
+  - args >=1.0.0 <3.0.0
+  - collection ^1.17.0
+  - path ^1.0.0
+  - pub_semver >=1.4.4 <3.0.0
+  - source_span ^1.4.0
+- desktop_webview_auth 0.0.15
+  - crypto ^3.0.3
+  - flutter any
+  - http ^1.0.0
+  - flutter_web_plugins any
+  - plugin_platform_interface ^2.1.4
+- email_validator 2.1.17
+- fake_async 1.3.1
+  - clock ^1.1.0
+  - collection ^1.15.0
+- ffi 2.1.2
+- file 7.0.0
+  - meta ^1.9.1
+  - path ^1.8.3
+- file_selector_linux 0.9.2+1
+  - cross_file ^0.3.1
+  - file_selector_platform_interface ^2.6.0
+  - flutter any
+- file_selector_macos 0.9.3+3
+  - cross_file ^0.3.1
+  - file_selector_platform_interface ^2.6.0
+  - flutter any
+- file_selector_platform_interface 2.6.2
+  - cross_file ^0.3.0
+  - flutter any
+  - http >=0.13.0 <2.0.0
+  - plugin_platform_interface ^2.1.7
+- file_selector_windows 0.9.3+1
+  - cross_file ^0.3.1
+  - file_selector_platform_interface ^2.6.0
+  - flutter any
+- firebase_analytics_platform_interface 3.9.10
+  - \_flutterfire_internals ^1.3.26
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_analytics_web 0.5.5+22
+  - \_flutterfire_internals ^1.3.26
+  - firebase_analytics_platform_interface ^3.9.10
+  - firebase_core ^2.27.1
+  - firebase_core_web ^2.12.0
+  - flutter any
+  - flutter_web_plugins any
+  - js ^0.6.3
+- firebase_auth_platform_interface 7.1.9
+  - \_flutterfire_internals ^1.3.26
+  - collection ^1.16.0
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_auth_web 5.10.0
+  - firebase_auth_platform_interface ^7.1.9
+  - firebase_core ^2.27.1
+  - firebase_core_web ^2.12.0
+  - flutter any
+  - flutter_web_plugins any
+  - http_parser ^4.0.0
+  - js ^0.6.3
+  - meta ^1.8.0
+  - web ^0.5.1
+- firebase_core_platform_interface 5.0.0
+  - collection ^1.0.0
+  - flutter any
+  - flutter_test any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_core_web 2.12.0
+  - firebase_core_platform_interface ^5.0.0
+  - flutter any
+  - flutter_web_plugins any
+  - js ^0.6.3
+  - meta ^1.8.0
+  - web ^0.5.1
+- firebase_crashlytics_platform_interface 3.6.26
+  - \_flutterfire_internals ^1.3.26
+  - collection ^1.15.0
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_dynamic_links 5.4.18
+  - firebase_core ^2.27.1
+  - firebase_core_platform_interface ^5.0.0
+  - firebase_dynamic_links_platform_interface ^0.2.6+26
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_dynamic_links_platform_interface 0.2.6+26
+  - \_flutterfire_internals ^1.3.26
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_messaging_platform_interface 4.5.28
+  - \_flutterfire_internals ^1.3.26
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_messaging_web 3.7.0
+  - \_flutterfire_internals ^1.3.26
+  - firebase_core ^2.27.1
+  - firebase_core_web ^2.12.0
+  - firebase_messaging_platform_interface ^4.5.28
+  - flutter any
+  - flutter_web_plugins any
+  - js ^0.6.3
+  - meta ^1.8.0
+  - web ^0.5.1
+- firebase_storage_platform_interface 5.1.13
+  - \_flutterfire_internals ^1.3.26
+  - collection ^1.15.0
+  - firebase_core ^2.27.1
+  - flutter any
+  - meta ^1.8.0
+  - plugin_platform_interface ^2.1.3
+- firebase_storage_web 3.8.0
+  - \_flutterfire_internals ^1.3.26
+  - async ^2.5.0
+  - firebase_core ^2.27.1
+  - firebase_core_web ^2.12.0
+  - firebase_storage_platform_interface ^5.1.13
+  - flutter any
+  - flutter_web_plugins any
+  - http >=0.13.0 <2.0.0
+  - js ^0.6.3
+  - meta ^1.8.0
+  - web ^0.5.1
+- firebase_ui_localizations 1.10.2
+  - flutter any
+  - flutter_localizations any
+  - path ^1.8.3
+- firebase_ui_oauth 1.5.1
+  - desktop_webview_auth ^0.0.14
+  - firebase_auth ^4.17.5
+  - firebase_ui_auth ^1.13.1
+  - firebase_ui_shared ^1.4.1
+  - flutter_svg ^2.0.9
+  - flutter any
+- firebase_ui_shared 1.4.1
+  - flutter any
+- fixnum 1.1.0
+- flutter_localizations 0.0.0
+  - flutter any
+  - intl 0.18.1
+  - characters 1.3.0
+  - clock 1.1.1
+  - collection 1.18.0
+  - material_color_utilities 0.8.0
+  - meta 1.11.0
+  - path 1.9.0
+  - vector_math 2.1.4
+- flutter_plugin_android_lifecycle 2.0.17
+  - flutter any
+- flutter_svg 2.0.10+1
+  - flutter any
+  - http ^1.0.0
+  - vector_graphics ^1.1.11
+  - vector_graphics_codec ^1.1.11
+  - vector_graphics_compiler ^1.1.11
+- flutter_web_plugins 0.0.0
+  - flutter any
+  - characters 1.3.0
+  - collection 1.18.0
+  - material_color_utilities 0.8.0
+  - meta 1.11.0
+  - vector_math 2.1.4
+- freezed_annotation 2.4.1
+  - collection ^1.15.0
+  - json_annotation ^4.6.0
+  - meta ^1.7.0
+- geolocator_android 4.5.4
+  - flutter any
+  - geolocator_platform_interface ^4.1.0
+  - meta ^1.10.0
+  - uuid ^4.1.0
+- geolocator_apple 2.3.7
+  - flutter any
+  - geolocator_platform_interface ^4.1.0
+- geolocator_platform_interface 4.2.2
+  - flutter any
+  - plugin_platform_interface ^2.1.6
+  - vector_math ^2.1.4
+  - meta ^1.9.1
+- geolocator_web 3.0.0
+  - flutter any
+  - flutter_web_plugins any
+  - geolocator_platform_interface ^4.1.0
+- geolocator_windows 0.2.3
+  - flutter any
+  - geolocator_platform_interface ^4.1.0
+- glob 2.1.2
+  - async ^2.5.0
+  - collection ^1.15.0
+  - file >=6.1.3 <8.0.0
+  - path ^1.8.0
+  - string_scanner ^1.1.0
+- google_maps 7.1.0
+  - js ^0.6.3
+  - js_wrapping ^0.7.4
+  - meta ^1.3.0
+  - web ^0.5.0
+- google_maps_flutter_android 2.7.0
+  - flutter any
+  - flutter_plugin_android_lifecycle ^2.0.1
+  - google_maps_flutter_platform_interface ^2.5.0
+  - stream_transform ^2.0.0
+- google_maps_flutter_ios 2.5.0
+  - flutter any
+  - google_maps_flutter_platform_interface ^2.5.0
+  - stream_transform ^2.0.0
+- google_maps_flutter_platform_interface 2.6.0
+  - collection ^1.15.0
+  - flutter any
+  - plugin_platform_interface ^2.1.7
+  - stream_transform ^2.0.0
+- google_maps_flutter_web 0.5.6+2
+  - collection ^1.16.0
+  - flutter any
+  - flutter_web_plugins any
+  - google_maps ^7.1.0
+  - google_maps_flutter_platform_interface ^2.5.0
+  - sanitize_html ^2.0.0
+  - stream_transform ^2.0.0
+  - web ^0.5.1
+- hotreloader 4.2.0
+  - collection ^1.15.0
+  - logging ^1.0.0
+  - path ^1.8.0
+  - stream_transform ^2.0.0
+  - vm_service >=6.0.1 <15.0.0
+  - watcher ^1.1.0
+- html 0.15.4
+  - csslib >=0.17.0 <2.0.0
+  - source_span ^1.8.0
+- http 1.2.1
+  - async ^2.5.0
+  - http_parser ^4.0.0
+  - meta ^1.3.0
+  - web ^0.5.0
+- http_parser 4.0.2
+  - collection ^1.15.0
+  - source_span ^1.8.0
+  - string_scanner ^1.1.0
+  - typed_data ^1.3.0
+- image 4.1.7
+  - archive ^3.4.0
+  - meta ^1.3.0
+  - xml ^6.0.1
+- image_picker_android 0.8.9+3
+  - flutter any
+  - flutter_plugin_android_lifecycle ^2.0.1
+  - image_picker_platform_interface ^2.8.0
+- image_picker_for_web 3.0.3
+  - flutter any
+  - flutter_web_plugins any
+  - image_picker_platform_interface ^2.9.0
+  - mime ^1.0.4
+  - web ^0.5.1
+- image_picker_ios 0.8.9+2
+  - flutter any
+  - image_picker_platform_interface ^2.8.0
+- image_picker_linux 0.2.1+1
+  - file_selector_linux ^0.9.1+3
+  - file_selector_platform_interface ^2.2.0
+  - flutter any
+  - image_picker_platform_interface ^2.8.0
+- image_picker_macos 0.2.1+1
+  - file_selector_macos ^0.9.1+1
+  - file_selector_platform_interface ^2.3.0
+  - flutter any
+  - image_picker_platform_interface ^2.8.0
+- image_picker_platform_interface 2.9.4
+  - cross_file ^0.3.1+1
+  - flutter any
+  - http >=0.13.0 <2.0.0
+  - plugin_platform_interface ^2.1.7
+- image_picker_windows 0.2.1+1
+  - file_selector_platform_interface ^2.2.0
+  - file_selector_windows ^0.9.0
+  - flutter any
+  - image_picker_platform_interface ^2.8.0
+- intl 0.18.1
+  - clock ^1.1.0
+  - meta ^1.0.2
+  - path ^1.8.0
+- js 0.6.7
+  - meta ^1.7.0
+- js_wrapping 0.7.4
+  - js ^0.6.3
+- json_annotation 4.8.1
+  - meta ^1.4.0
+- leak_tracker 10.0.0
+  - clock ^1.1.1
+  - collection ^1.15.0
+  - meta ^1.8.0
+  - path ^1.8.3
+  - vm_service >=11.10.0 <15.0.0
+- leak_tracker_flutter_testing 2.0.1
+  - flutter any
+  - leak_tracker >=10.0.0 <11.0.0
+  - leak_tracker_testing >=2.0.1 <3.0.0
+  - matcher ^0.12.16
+  - meta ^1.8.0
+- leak_tracker_testing 2.0.1
+  - leak_tracker >=9.0.0 <11.0.0
+  - matcher ^0.12.16
+  - meta ^1.11.0
+- lints 3.0.0
+- list_counter 1.0.2
+- logging 1.2.0
+- matcher 0.12.16+1
+  - async ^2.10.0
+  - meta ^1.8.0
+  - stack_trace ^1.10.0
+  - term_glyph ^1.2.0
+  - test_api >=0.5.0 <0.8.0
+- material_color_utilities 0.8.0
+  - collection ^1.15.0
+- meta 1.11.0
+- mime 1.0.5
+- package_config 2.1.0
+  - path ^1.8.0
+- path 1.9.0
+- path_parsing 1.0.1
+  - vector_math ^2.1.0
+  - meta ^1.3.0
+- path_provider_linux 2.2.1
+  - ffi >=1.1.2 <3.0.0
+  - flutter any
+  - path ^1.8.0
+  - path_provider_platform_interface ^2.1.0
+  - xdg_directories >=0.2.0 <2.0.0
+- path_provider_platform_interface 2.1.2
+  - flutter any
+  - platform ^3.0.0
+  - plugin_platform_interface ^2.1.7
+- path_provider_windows 2.2.1
+  - ffi ^2.0.0
+  - flutter any
+  - path ^1.8.0
+  - path_provider_platform_interface ^2.1.0
+  - win32 >=2.1.0 <6.0.0
+- petitparser 6.0.2
+  - meta ^1.9.0
+- platform 3.1.4
+- plugin_platform_interface 2.1.8
+  - meta ^1.3.0
+- pointycastle 3.7.4
+  - collection ^1.15.0
+  - convert ^3.0.0
+  - js >=0.6.3 <0.8.0
+- pub_semver 2.1.4
+  - collection ^1.15.0
+  - meta ^1.3.0
+- pubspec_parse 1.2.3
+  - checked_yaml ^2.0.1
+  - collection ^1.15.0
+  - json_annotation ^4.8.0
+  - pub_semver ^2.0.0
+  - yaml ^3.0.0
+- riverpod 2.5.1
+  - collection ^1.18.0
+  - meta ^1.9.0
+  - stack_trace ^1.10.0
+  - state_notifier >=0.7.2 <2.0.0
+- riverpod_analyzer_utils 0.5.1
+  - analyzer >=5.12.0 <7.0.0
+  - collection ^1.16.0
+  - crypto ^3.0.2
+  - custom_lint_core ^0.6.0
+  - freezed_annotation ^2.2.0
+  - meta ^1.7.0
+  - path ^1.8.0
+  - source_span ^1.8.0
+- rxdart 0.27.7
+- sanitize_html 2.1.0
+  - html ^0.15.0
+  - meta ^1.1.7
+- shared_preferences_android 2.2.1
+  - flutter any
+  - shared_preferences_platform_interface ^2.3.0
+- shared_preferences_foundation 2.3.5
+  - flutter any
+  - shared_preferences_platform_interface ^2.3.0
+- shared_preferences_linux 2.3.2
+  - file >=6.0.0 <8.0.0
+  - flutter any
+  - path ^1.8.0
+  - path_provider_linux ^2.0.0
+  - path_provider_platform_interface ^2.0.0
+  - shared_preferences_platform_interface ^2.3.0
+- shared_preferences_platform_interface 2.3.2
+  - flutter any
+  - plugin_platform_interface ^2.1.7
+- shared_preferences_web 2.3.0
+  - flutter any
+  - flutter_web_plugins any
+  - shared_preferences_platform_interface ^2.3.0
+  - web ^0.5.0
+- shared_preferences_windows 2.3.2
+  - file >=6.0.0 <8.0.0
+  - flutter any
+  - path ^1.8.0
+  - path_provider_platform_interface ^2.0.0
+  - path_provider_windows ^2.0.0
+  - shared_preferences_platform_interface ^2.3.0
+- sky_engine 0.0.99
+- source_span 1.10.0
+  - collection ^1.15.0
+  - path ^1.8.0
+  - term_glyph ^1.2.0
+- sprintf 7.0.0
+- stack_trace 1.11.1
+  - path ^1.8.0
+- state_notifier 1.0.0
+  - meta ^1.1.8
+- stream_channel 2.1.2
+  - async ^2.5.0
+- stream_transform 2.1.0
+- string_scanner 1.2.0
+  - source_span ^1.8.0
+- term_glyph 1.2.1
+- test_api 0.6.1
+  - async ^2.5.0
+  - boolean_selector ^2.1.0
+  - collection ^1.15.0
+  - meta ^1.3.0
+  - source_span ^1.8.0
+  - stack_trace ^1.10.0
+  - stream_channel ^2.1.0
+  - string_scanner ^1.1.0
+  - term_glyph ^1.2.0
+- typed_data 1.3.2
+  - collection ^1.15.0
+- url_launcher_android 6.3.0
+  - flutter any
+  - url_launcher_platform_interface ^2.3.1
+- url_launcher_ios 6.2.5
+  - flutter any
+  - url_launcher_platform_interface ^2.2.0
+- url_launcher_linux 3.1.1
+  - flutter any
+  - url_launcher_platform_interface ^2.2.0
+- url_launcher_macos 3.1.0
+  - flutter any
+  - url_launcher_platform_interface ^2.2.0
+- url_launcher_platform_interface 2.3.2
+  - flutter any
+  - plugin_platform_interface ^2.1.7
+- url_launcher_web 2.3.0
+  - flutter any
+  - flutter_web_plugins any
+  - url_launcher_platform_interface ^2.2.0
+  - web ^0.5.0
+- url_launcher_windows 3.1.1
+  - flutter any
+  - url_launcher_platform_interface ^2.2.0
+- uuid 4.3.3
+  - crypto ^3.0.0
+  - sprintf ^7.0.0
+  - meta ^1.10.0
+  - fixnum ^1.1.0
+- vector_graphics 1.1.11+1
+  - flutter any
+  - http ^1.0.0
+  - vector_graphics_codec 1.1.11+1
+- vector_graphics_codec 1.1.11+1
+- vector_graphics_compiler 1.1.11+1
+  - args ^2.3.0
+  - meta ^1.7.0
+  - path_parsing ^1.0.1
+  - xml ^6.3.0
+  - vector_graphics_codec 1.1.11+1
+  - path ^1.8.0
+- vector_math 2.1.4
+- vm_service 13.0.0
+- watcher 1.1.0
+  - async ^2.5.0
+  - path ^1.8.0
+- web 0.5.1
+- webview_flutter_android 3.16.0
+  - flutter any
+  - webview_flutter_platform_interface ^2.10.0
+- webview_flutter_platform_interface 2.10.0
+  - flutter any
+  - meta ^1.7.0
+  - plugin_platform_interface ^2.1.7
+- webview_flutter_wkwebview 3.13.0
+  - flutter any
+  - path ^1.8.0
+  - webview_flutter_platform_interface ^2.10.0
+- win32 5.3.0
+  - ffi ^2.1.2
+- xdg_directories 1.0.4
+  - meta ^1.3.0
+  - path ^1.8.0
+- xml 6.5.0
+  - collection ^1.18.0
+  - meta ^1.9.0
+  - petitparser ^6.0.0
+- yaml 3.1.2
+  - collection ^1.15.0
+  - source_span ^1.8.0
+  - string_scanner ^1.1.0

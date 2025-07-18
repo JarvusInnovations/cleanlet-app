@@ -17,6 +17,8 @@ import '../services/firestore_repository.dart';
 import '../services/geolocation.dart';
 import '../components/carousel_modal_widget.dart';
 import 'inlet_view.dart';
+import 'inlet_photo_needed.dart';
+import 'inlet_admin_review.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,6 +31,31 @@ class HomePageState extends State<HomePage> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   List<Marker> mapMarkers = [];
   final List<String> messages = ["Hi and welcome to Cleanlet! Thank you for supporting this project! Here are a few things that you should know:", "Be safe: Always follow the cleaning guidelines and clean only when it feels safe to you. You can find the guidelines in the (?) section of the app.", "Feel free to let us know of any bugs or feedback using the button in the top right menu.", "Read the instructions on how to use the app in the (?) section."];
+
+  double _getMarkerColor(String inletStatus) {
+    switch (inletStatus) {
+      case 'ready':
+        return BitmapDescriptor.hueGreen;
+      case 'photo_needed':
+        return BitmapDescriptor.hueRed;
+      default:
+        return BitmapDescriptor.hueOrange; // default color
+    }
+  }
+
+  void _navigateToInletPage(BuildContext context, Inlet inlet) {
+    switch (inlet.inletStatus) {
+      case 'ready':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => InletView(inlet: inlet)));
+        break;
+      case 'photo_needed':
+        Navigator.push(context, MaterialPageRoute(builder: (context) => InletPhotoNeed(inlet: inlet)));
+        break;
+      default:
+        Navigator.push(context, MaterialPageRoute(builder: (context) => InletAdminReview(inlet: inlet)));
+        break;
+    }
+  }
 
   Future<bool> checkFirstSeen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -249,11 +276,11 @@ class HomePageState extends State<HomePage> {
                   mapMarkers.addAll(inletsAsyncValue.value!
                       .map((inlet) => Marker(
                             onTap: () {
-                              print(inlet.referenceId);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => InletView(inlet: inlet)));
+                              _navigateToInletPage(context, inlet);
                             },
                             markerId: MarkerId(inlet.referenceId),
                             position: LatLng(inlet.geoLocation.latitude, inlet.geoLocation.longitude),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(_getMarkerColor(inlet.inletStatus ?? 'unknown')),
                           ))
                       .toList());
                 }

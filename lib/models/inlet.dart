@@ -11,6 +11,7 @@ class Inlet {
   String referenceId;
   List<String> subscribed;
   String? status;
+  String? inletStatus;
   String jobId;
 
   Inlet({
@@ -21,6 +22,7 @@ class Inlet {
     required this.referenceId,
     required this.subscribed,
     required this.status,
+    required this.inletStatus,
     required this.jobId,
   });
 
@@ -59,13 +61,14 @@ class Inlet {
       subscribed = List<String>.from(data['subscribed']);
     }
     final status = data['status'];
+    final inletStatus = data['inletStatus'];
     final String jobId;
     if (data['jobId'] == null) {
       jobId = '';
     } else {
       jobId = data['jobId'];
     }
-    return Inlet(subscribed: subscribed, referenceId: documentId, geoLocation: geoLocation, nickName: nickName, description: description, address: address, status: status, jobId: jobId);
+    return Inlet(subscribed: subscribed, referenceId: documentId, geoLocation: geoLocation, nickName: nickName, description: description, address: address, status: status, jobId: jobId, inletStatus: inletStatus);
   }
 
   Map<String, dynamic> toJson() => _inletToJson(this);

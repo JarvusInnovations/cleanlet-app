@@ -97,7 +97,7 @@ class _JobStartPageState extends ConsumerState<CleaningPhotoView> {
                     : const Align(
                         alignment: Alignment.center,
                         child: Text(
-                          'Please select an take a photo or choose an image from your photo gallery',
+                          'Please select take a photo or choose an image from your photo gallery',
                           textAlign: TextAlign.center,
                         )),
               ),

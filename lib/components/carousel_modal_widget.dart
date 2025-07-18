@@ -13,7 +13,7 @@ class CarouselModalWidget extends StatefulWidget {
 
 class _CarouselModalWidgetState extends State<CarouselModalWidget> {
   int _current = 0;
-  CarouselController _sliderController = CarouselController();
+  CarouselSliderController _sliderController = CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class _CarouselModalWidgetState extends State<CarouselModalWidget> {
             children: [
               DotsIndicator(
                 dotsCount: widget.messages.length,
-                position: _current,
+                position: _current.toDouble(),
                 onTap: (index) {
                   _sliderController.animateToPage(index);
                 },

@@ -26,10 +26,10 @@ class InletCarousel extends StatelessWidget {
           final imageUrls = snapshot.data!;
 
           return FlutterCarousel(
-            options: CarouselOptions(
+            options: FlutterCarouselOptions(
               height: 200,
               showIndicator: true,
-              slideIndicator: const CircularSlideIndicator(),
+              slideIndicator: CircularSlideIndicator(),
               enableInfiniteScroll: true,
             ),
             items: imageUrls.map((imageUrl) {
