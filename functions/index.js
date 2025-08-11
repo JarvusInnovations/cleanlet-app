@@ -612,3 +612,31 @@ function createInletCleaningJob(inletId, risk) {
       });
     });
 }
+
+/*********************************************************
+ *
+ *  Bulk Import Functionality
+ *
+ *********************************************************/
+exports.processImports = functions.firestore.document('importQueue/{docId}').onCreate(async (snap, context) => {
+  const data = snap.data();
+  const rows = data.rows;
+
+  const batch = admin.firestore().batch();
+  const inletRef = admin.firestore().collection('inlets');
+
+  rows.forEach((row) => {
+    const docRef = inletRef.doc();
+
+    batch.set(docRef, {
+      nickName: row.name,
+      address: row.address || '',
+      description: row.description || '',
+      geoLocation: new admin.firestore.GeoPoint(parseFloat(row.latitude), parseFloat(row.longitude)),
+      inletStatus: row.status || 'photo_needed',
+    });
+  });
+
+  await batch.commit();
+  return null;
+});
