@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+/* eslint-disable max-len */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const fetch = require('node-fetch');
@@ -15,67 +17,45 @@ const ObjectsToCsv = require('objects-to-csv');
 const app = initializeApp();
 
 // admin.initializeApp();
+/* Commenting out this function since cleaning jobs will go through a review process before being accepted **/
+// exports.calculateJobPoints = functions.firestore.document('inletCleaningJobs/{jobId}').onUpdate(async (change, context) => {
+//   const newValue = change.after.data();
 
-exports.calculateJobPoints = functions.firestore.document('inletCleaningJobs/{jobId}').onUpdate(async (change, context) => {
-  const newValue = change.after.data();
+//   const {
+//     // startedAt,
+//     finishedAt,
+//     inletId,
+//     status,
+//     // acceptedLocation,
+//     acceptedBy,
+//     createdAt,
+//   } = newValue;
 
-  const {
-    // startedAt,
-    finishedAt,
-    inletId,
-    status,
-    // acceptedLocation,
-    acceptedBy,
-    createdAt,
-  } = newValue;
+//   if (status === 'cleaned') {
+//     const inletRef = admin.firestore().collection('inlets').doc(inletId);
+//     const doc = await inletRef.get();
 
-  if (status === 'cleaned') {
-    console.log('hello2');
-    //  get inlet location
+//     if (!doc.exists) {
+//       console.log('No such document!');
+//     } else {
+//       const jobId = context.params.jobId;
 
-    const inletRef = admin.firestore().collection('inlets').doc(inletId);
-    const doc = await inletRef.get();
+//       const points = caluclatePointsV2(finishedAt, createdAt);
 
-    if (!doc.exists) {
-      console.log('No such document!');
-    } else {
-      // taskAverageTime is left over from previous discussion for calculating difficulty of cleaning a specific inlet, in the future it can be calculated by the existing jobs in the db. Update in docs
-      // let {geoLocation, taskAverageTime} = doc.data();
-      // const jobCompletionTime = finishedAt - startedAt;
-      // //  console.log(geoLocation);
-      // //  taskAverageTime can be null
-      // if (!taskAverageTime) {
-      //   taskAverageTime = jobCompletionTime;
-      // }
+//       const jobRef = admin.firestore().collection('inletCleaningJobs').doc(jobId);
 
-      // const distanceFromJob = getDistanceFromLatLonInKm(
-      //     acceptedLocation.latitude,
-      //     acceptedLocation.longitude,
-      //     geoLocation.latitude,
-      //     geoLocation.longitude,
-      // );
+//       const usrRef = admin.firestore().collection('users').doc(acceptedBy);
+//       const batch = admin.firestore().batch();
 
-      // const weatherRiskScore = 1;
-      const jobId = context.params.jobId;
-      // const points =
-      // calculatePoints(jobCompletionTime, taskAverageTime, distanceFromJob) +
-      // weatherRiskScore;
-      const points = caluclatePointsV2(finishedAt, createdAt);
+//       batch.update(jobRef, { points: points, status: 'finalized' });
+//       batch.update(usrRef, {
+//         points: admin.firestore.FieldValue.increment(points),
+//       });
 
-      const jobRef = admin.firestore().collection('inletCleaningJobs').doc(jobId);
-
-      const usrRef = admin.firestore().collection('users').doc(acceptedBy);
-      const batch = admin.firestore().batch();
-
-      batch.update(jobRef, { points: points, status: 'finalized' });
-      batch.update(usrRef, {
-        points: admin.firestore.FieldValue.increment(points),
-      });
-
-      await batch.commit();
-    }
-  }
-});
+//       await batch.commit();
+//     }
+//   }
+// });
 
 exports.createUserDoc = functions.auth.user().onCreate((user) => {
   const { uid, email, displayName, photoURL } = user;
@@ -97,6 +77,43 @@ exports.checkWeatherStatusPubSub = functions.pubsub.schedule('every 1 minutes').
   checkWeatherStatus();
   return null;
 });
+
+/**
+ * Archive old pending jobs that weren't completed.
+ */
+exports.archiveOldPendingJobs = functions.pubsub
+  .schedule('0 0 * * *') // every day at midnight
+  .timeZone('America/New_York') // adjust as needed
+  .onRun(async (context) => {
+    const db = admin.firestore();
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+    const inletCleaningJobsRef = db.collection('inletCleaningJobs');
+
+    // Query for pending jobs older than 2 weeks
+    const snapshot = await inletCleaningJobsRef.where('status', '==', 'pending').where('createdAt', '<', admin.firestore.Timestamp.fromDate(twoWeeksAgo)).get();
+
+    if (snapshot.empty) {
+      console.log('No old pending cleaning jobs found.');
+      return null;
+    }
+
+    const batch = db.batch();
+
+    snapshot.docs.forEach((docSnap) => {
+      const jobRef = inletCleaningJobsRef.doc(docSnap.id);
+      batch.update(jobRef, {
+        status: 'archived',
+        archivedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    await batch.commit();
+
+    console.log(`Archived ${snapshot.size} pending cleaning jobs older than 2 weeks.`);
+    return null;
+  });
 
 exports.triggerWeatherStatus = functions.https.onRequest((request, response) => {
   console.log('manually trigger weather check');
@@ -320,26 +337,29 @@ exports.testPushNotifications = functions.https.onRequest(async (req, res) => {
 
     console.log(`Testing push notification for user id: ${userId}`);
 
-    const tokens = user.data().tokens;
+    const tokens = user.data().tokens || [];
 
     const payload = {
-      tokens: tokens,
-      notification: {
-        title: 'Cleanlet Test',
-        body: 'If you are receiving this message, it is a test.',
+      message: {
+        notification: {
+          title: 'Cleanlet Test',
+          body: 'If you are receiving this message, it is a test.',
+        },
       },
       android: { priority: 'high' },
+      tokens: tokens, // ✅ valid placement
     };
 
     if (tokens.length > 0) {
       console.log('User has push tokens');
-      let messageResponse = await admin.messaging().sendEachForMulticast(payload);
+      const messageResponse = await admin.messaging().sendEachForMulticast(payload);
 
       messageResponse.responses.forEach((resp, idx) => {
+        console.log(`Response from Cloud Messaging for:`, resp);
         if (resp.success) {
           console.log(`Message to ${tokens[idx]} succeeded`);
         } else {
-          console.error(`Message to ${tokens[idx]} failed:`);
+          console.error(`Message to ${tokens[idx]} failed: ${resp.error.message}`);
         }
       });
 
@@ -525,6 +545,16 @@ exports.exportCSVData = functions.https.onRequest(async (req, res) => {
 //   };
 // }
 
+async function createInletWeatherPrediction(inletId, risk) {
+  const weatherRef = admin.firestore().collection('weatherPredictions');
+  const weatherDoc = await weatherRef.add({
+    inletId: inletId,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    risk: risk,
+  });
+  return weatherDoc;
+}
+
 /**
  * [async description]
  *
@@ -539,6 +569,7 @@ async function checkWeatherStatus() {
     .then(function (querySnapshot) {
       querySnapshot.forEach(async function (doc) {
         const inletRef = admin.firestore().collection('inlets').doc(doc.id);
+        const inletData = doc.data();
 
         const baseUrl = 'https://api.weather.gov/points';
         const url = `${baseUrl}/${doc.data().geoLocation.latitude},${doc.data().geoLocation.longitude}`;
@@ -575,6 +606,10 @@ async function checkWeatherStatus() {
         // console.log(risk);
         console.log(`Updating ${doc.id} risk score to ${risk.value}`);
         await inletRef.update({ risk: risk.value });
+        // Create a weather prediction document for the inlet
+        if (inletData.inletStatus == 'ready') {
+          await createInletWeatherPrediction(doc.id, risk.value);
+        }
       });
     });
 }
