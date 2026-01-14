@@ -7,13 +7,8 @@
     {
       "source": "functions",
       "codebase": "default",
-      "runtime": "nodejs18",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ]
+      "runtime": "nodejs20",
+      "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log"]
     }
   ],
   "storage": {
@@ -22,7 +17,7 @@
   "emulators": {
     "auth": {
       "port": 9099,
-        "host": "0.0.0.0"
+      "host": "0.0.0.0"
     },
     "functions": {
       "port": 5001
