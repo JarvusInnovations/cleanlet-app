@@ -16,11 +16,14 @@ import path from 'path';
 import csv from 'csv-parser';
 import fs from 'fs-extra';
 import os from 'os';
+import crypto from 'crypto';
 import * as geofire from 'geofire-common';
 
 const app = initializeApp();
 const db = getFirestore(app);
 const messaging = getMessaging(app);
+const storage = getStorage(app);
+const bucket = storage.bucket();
 
 /*********************************************************
  * User Document Creation on Auth Signup
@@ -48,7 +51,7 @@ export const checkWeatherStatusPubSub = onSchedule(
   async () => {
     await checkWeatherStatus();
     return null;
-  }
+  },
 );
 
 const START_HOUR = 7;
@@ -134,7 +137,7 @@ export const sendScheduledNotifications = onSchedule(
     }
 
     console.log('[sendScheduledNotifications] Completed.');
-  }
+  },
 );
 
 /*********************************************************
@@ -169,7 +172,7 @@ export const archiveOldPendingJobs = onSchedule(
     await batch.commit();
     console.log(`Archived ${snapshot.size} pending jobs older than 2 weeks.`);
     return null;
-  }
+  },
 );
 
 /*********************************************************
@@ -183,7 +186,7 @@ export const triggerWeatherStatus = onRequest(
   async (req, res) => {
     await checkWeatherStatus();
     res.send('Triggered');
-  }
+  },
 );
 
 export const testAdminNotification = onRequest(
@@ -220,7 +223,7 @@ export const testAdminNotification = onRequest(
     }
 
     res.status(200).send('Test complete');
-  }
+  },
 );
 
 /*********************************************************
@@ -268,7 +271,7 @@ export const cleaningJobStatusUpdatedV2 = onDocumentUpdated(
         }
       }
     }
-  }
+  },
 );
 
 /*********************************************************
@@ -361,7 +364,7 @@ export const inletStatusUpdatedV2 = onDocumentUpdated(
     //     await db.collection('inlets').doc(event.params.inletId).update({ lastNotificationAndCleaningJobCreated: now });
     //   }
     // }
-  }
+  },
 );
 
 /*********************************************************
@@ -408,13 +411,13 @@ export const checkUploadedImageV2 = onObjectFinalized(
                   images: row.images,
                   instructions: row.instructions,
                 },
-                { merge: true }
+                { merge: true },
               );
           }
           resolve(null);
         });
     });
-  }
+  },
 );
 
 /*********************************************************
@@ -452,7 +455,7 @@ export const testPushNotifications = onRequest(
       console.error(error);
       res.status(500).send('Internal Server Error');
     }
-  }
+  },
 );
 
 /*********************************************************
@@ -526,7 +529,7 @@ export const manuallyTriggerCleaningJobNotifications = onRequest(
       console.error(err);
       res.status(500).send('Internal Server Error');
     }
-  }
+  },
 );
 
 /*********************************************************
@@ -642,6 +645,147 @@ async function checkWeatherStatus() {
 /*********************************************************
  * Process Imports
  *********************************************************/
+// export const processImports = onDocumentCreated(
+//   {
+//     document: 'importQueue/{docId}',
+//     region: 'us-east4',
+//     nodeVersion: '20',
+//   },
+//   async (event) => {
+//     const snap = event.data;
+
+//     if (!snap) {
+//       console.log('No snapshot found.');
+//       return;
+//     }
+
+//     const data = snap.data();
+
+//     if (!data?.rows || !Array.isArray(data.rows)) {
+//       console.log('Invalid row payload.');
+//       await snap.ref.delete();
+//       return;
+//     }
+
+//     const inletRef = db.collection('inlets');
+
+//     const rows = data.rows;
+
+//     for (let i = 0; i < rows.length; i += 500) {
+//       const batch = db.batch();
+//       const slice = rows.slice(i, i + 500);
+
+//       slice.forEach(async (row) => {
+//         if (!row.name || !row.latitude || !row.longitude) return;
+
+//         const docRef = inletRef.doc();
+
+//         batch.set(docRef, {
+//           nickName: row.name,
+//           address: row.address || '',
+//           description: row.description || '',
+//           geoLocation: new GeoPoint(Number(row.latitude), Number(row.longitude)),
+//           inletStatus: row.inletStatus ?? 'photo_needed',
+//         });
+//       });
+
+//       await batch.commit();
+//     }
+
+//     await snap.ref.delete();
+//   }
+// );
+
+const normalizeGeo = (lat, lng) => {
+  return `${lat.toFixed(6)},${lng.toFixed(6)}`;
+};
+
+export const manualNormalizeGeo = onRequest(
+  {
+    region: 'us-east4',
+    nodeVersion: '20',
+    timeoutSeconds: 540,
+    memory: '1GiB',
+  },
+  async (_, res) => {
+    const PAGE_SIZE = 500;
+    let lastDoc = null;
+    let totalUpdated = 0;
+
+    while (true) {
+      let query = db.collection('inlets').orderBy('__name__').limit(PAGE_SIZE);
+
+      if (lastDoc) {
+        query = query.startAfter(lastDoc);
+      }
+
+      const snap = await query.get();
+
+      console.log(`Updating ${snap.size} documents...`);
+
+      if (snap.empty) break;
+
+      const batch = db.batch();
+      for (const doc of snap.docs) {
+        const data = doc.data();
+        if (data.geoHash) continue;
+
+        const geo = data.geoLocation;
+        if (!geo || geo.latitude == null || geo.longitude == null) {
+          console.warn(`Skipping ${doc.id} due to missing geolocation.`);
+          continue;
+        }
+
+        const geoHash = normalizeGeo(geo.latitude, geo.longitude);
+
+        batch.update(doc.ref, {
+          geoHash,
+        });
+
+        totalUpdated++;
+      }
+      await batch.commit();
+      lastDoc = snap.docs[snap.docs.length - 1];
+    }
+
+    res.json({
+      success: true,
+      updated: totalUpdated,
+    });
+  },
+);
+
+async function fetchImageWithRedirects(url, maxRedirects = 5) {
+  let currentUrl = url;
+
+  for (let i = 0; i < maxRedirects; i++) {
+    const response = await fetch(currentUrl, {
+      redirect: 'manual',
+    });
+
+    // Success
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    }
+
+    // Redirect
+    if (response.status === 301 || response.status === 302 || response.status === 303 || response.status === 307 || response.status === 308) {
+      const location = response.headers.get('location');
+      if (!location) {
+        throw new Error('Redirect without Location header');
+      }
+
+      currentUrl = location.startsWith('http') ? location : new URL(location, currentUrl).toString();
+
+      continue;
+    }
+
+    throw new Error(`Failed to fetch image: ${response.status}`);
+  }
+
+  throw new Error('Too many redirects');
+}
+
 export const processImports = onDocumentCreated(
   {
     document: 'importQueue/{docId}',
@@ -649,25 +793,126 @@ export const processImports = onDocumentCreated(
     nodeVersion: '20',
   },
   async (event) => {
+    const snap = event.data;
+
+    if (!snap) {
+      console.log('No snapshot found.');
+      return;
+    }
+
     const data = snap.data();
+
+    if (!data?.rows || !Array.isArray(data.rows)) {
+      console.log('Invalid row payload.');
+      await snap.ref.delete();
+      return;
+    }
+
+    const inletRef = db.collection('inlets');
     const rows = data.rows;
 
-    const batch = admin.firestore().batch();
-    const inletRef = admin.firestore().collection('inlets');
+    for (let i = 0; i < rows.length; i += 500) {
+      const batch = db.batch();
+      const slice = rows.slice(i, i + 500);
 
-    rows.forEach((row) => {
-      const docRef = inletRef.doc();
+      for (const row of slice) {
+        if (!row.name || !row.latitude || !row.longitude) return;
 
-      batch.set(docRef, {
-        nickName: row.name,
-        address: row.address || '',
-        description: row.description || '',
-        geoLocation: new admin.firestore.GeoPoint(parseFloat(row.latitude), parseFloat(row.longitude)),
-        inletStatus: row.status || 'photo_needed',
-      });
-    });
+        const imageFiles = [];
 
-    await batch.commit();
-    return null;
-  }
+        if (row.image) {
+          try {
+            console.log(`Fetching image: ${row.image}`);
+            const response = await fetchImageWithRedirects(row.image);
+
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${row.image}`);
+            }
+
+            const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+            if (!contentType.startsWith('image/')) {
+              throw new Error(`URL is not an image`);
+            }
+
+            const buffer = Buffer.from(await response.arrayBuffer());
+
+            const ext = contentType.split('/')[1]?.split(';')[0] || 'jpeg';
+
+            const filename = `${crypto.randomUUID()}.${ext}`;
+            const objectKey = `inlet-photos/${filename}`;
+
+            const file = bucket.file(objectKey);
+
+            await file.save(buffer, {
+              metadata: {
+                contentType,
+                cacheControl: 'public, max-age=31536000',
+              },
+              resumable: false,
+            });
+
+            await file.makePublic();
+
+            imageFiles.push(filename);
+          } catch (e) {
+            console.error('Image upload failed:', e);
+          }
+        }
+
+        // Dedup Logic
+        const lat = Number(row.latitude);
+        const lng = Number(row.longitude);
+        const geohash = normalizeGeo(lat, lng);
+
+        const existingSnap = await inletRef
+          .where('nickName', '==', row.name)
+          .where('description', '==', row.description || '')
+          .where('geoHash', '==', geohash)
+          .limit(1)
+          .get();
+
+        if (!existingSnap.empty) {
+          const doc = existingSnap.docs[0];
+          const existingData = doc.data();
+
+          const updatedImages = Array.from(new Set([...(existingData.images || []), ...imageFiles]));
+
+          const finalAddress = (existingData.address && existingData.address.trim()) || (row.address && row.address.trim()) || '';
+
+          const isReady = updatedImages.length > 0 && finalAddress.length > 0;
+
+          const updatePayload = {
+            images: updatedImages,
+          };
+
+          if (!existingData.address && finalAddress) {
+            updatePayload.address = finalAddress;
+          }
+
+          if (isReady && existingData.inletStatus !== 'ready') {
+            updatePayload.inletStatus = 'ready';
+          }
+
+          batch.update(doc.ref, updatePayload);
+        } else {
+          const docRef = inletRef.doc();
+
+          batch.set(docRef, {
+            nickName: row.name,
+            address: row.address || '',
+            description: row.description || '',
+            images: imageFiles,
+            geoLocation: new GeoPoint(Number(row.latitude), Number(row.longitude)),
+            geoHash: geohash,
+            inletStatus: row?.address.trim() && imageFiles.length > 0 ? 'ready' : 'photo_needed',
+          });
+        }
+      }
+
+      await batch.commit();
+    }
+
+    await snap.ref.delete();
+  },
 );
