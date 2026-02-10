@@ -26,7 +26,8 @@
     "geofire-common": "^6.0.0",
     "moment-timezone": "^0.5.43",
     "node-fetch": "^3.3.2",
-    "objects-to-csv": "^1.3.6"
+    "objects-to-csv": "^1.3.6",
+    "p-limit": "^7.3.0"
   },
   "devDependencies": {
     "eslint": "^8.9.0",
