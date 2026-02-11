@@ -191,42 +191,42 @@ export const triggerWeatherStatus = onRequest(
   },
 );
 
-export const testAdminNotification = onRequest(
-  {
-    region: 'us-east4',
-    nodeVersion: '20',
-  },
-  async (req, res) => {
-    const userDocs = await db.collection('users').where('role', '==', 'admin').get();
+// export const testAdminNotification = onRequest(
+//   {
+//     region: 'us-east4',
+//     nodeVersion: '20',
+//   },
+//   async (req, res) => {
+//     const userDocs = await db.collection('users').where('role', '==', 'admin').get();
 
-    if (!userDocs.empty) {
-      for (const userDoc of userDocs.docs) {
-        const user = userDoc.data();
-        if (user.tokens) {
-          const message = {
-            tokens: user.tokens,
-            notification: {
-              title: 'Test Admin Notification',
-              body: 'This is a test admin notification.',
-            },
-            android: { priority: 'high' },
-          };
+//     if (!userDocs.empty) {
+//       for (const userDoc of userDocs.docs) {
+//         const user = userDoc.data();
+//         if (user.tokens) {
+//           const message = {
+//             tokens: user.tokens,
+//             notification: {
+//               title: 'Test Admin Notification',
+//               body: 'This is a test admin notification.',
+//             },
+//             android: { priority: 'high' },
+//           };
 
-          const response = await messaging.sendEachForMulticast(message);
+//           const response = await messaging.sendEachForMulticast(message);
 
-          response.responses.forEach((r, i) => {
-            if (r.success) console.log(`Message to ${user.tokens[i]} succeeded`);
-            else console.error(`Message failed: ${r.error?.message}`);
-          });
-        }
-      }
-    } else {
-      console.log('No admins found.');
-    }
+//           response.responses.forEach((r, i) => {
+//             if (r.success) console.log(`Message to ${user.tokens[i]} succeeded`);
+//             else console.error(`Message failed: ${r.error?.message}`);
+//           });
+//         }
+//       }
+//     } else {
+//       console.log('No admins found.');
+//     }
 
-    res.status(200).send('Test complete');
-  },
-);
+//     res.status(200).send('Test complete');
+//   },
+// );
 
 /*********************************************************
  * Cleaning Job Status Updated
@@ -644,60 +644,6 @@ async function checkWeatherStatus() {
   }
 }
 
-/*********************************************************
- * Process Imports
- *********************************************************/
-// export const processImports = onDocumentCreated(
-//   {
-//     document: 'importQueue/{docId}',
-//     region: 'us-east4',
-//     nodeVersion: '20',
-//   },
-//   async (event) => {
-//     const snap = event.data;
-
-//     if (!snap) {
-//       console.log('No snapshot found.');
-//       return;
-//     }
-
-//     const data = snap.data();
-
-//     if (!data?.rows || !Array.isArray(data.rows)) {
-//       console.log('Invalid row payload.');
-//       await snap.ref.delete();
-//       return;
-//     }
-
-//     const inletRef = db.collection('inlets');
-
-//     const rows = data.rows;
-
-//     for (let i = 0; i < rows.length; i += 500) {
-//       const batch = db.batch();
-//       const slice = rows.slice(i, i + 500);
-
-//       slice.forEach(async (row) => {
-//         if (!row.name || !row.latitude || !row.longitude) return;
-
-//         const docRef = inletRef.doc();
-
-//         batch.set(docRef, {
-//           nickName: row.name,
-//           address: row.address || '',
-//           description: row.description || '',
-//           geoLocation: new GeoPoint(Number(row.latitude), Number(row.longitude)),
-//           inletStatus: row.inletStatus ?? 'photo_needed',
-//         });
-//       });
-
-//       await batch.commit();
-//     }
-
-//     await snap.ref.delete();
-//   }
-// );
-
 const normalizeGeo = (lat, lng) => {
   return `${lat.toFixed(6)},${lng.toFixed(6)}`;
 };
@@ -757,331 +703,175 @@ export const manualNormalizeGeo = onRequest(
   },
 );
 
-async function fetchImageWithRedirects(url, maxRedirects = 5) {
-  let currentUrl = url;
+async function streamImageToGCS(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Image fetch failed: ${res.status}`);
 
-  for (let i = 0; i < maxRedirects; i++) {
-    const response = await fetch(currentUrl, {
-      redirect: 'manual',
-    });
+  const contentType = res.headers.get('content-type') || 'application/octet-stream';
 
-    // Success
-    if (response.status >= 200 && response.status < 300) {
-      return response;
-    }
+  const ext = contentType.split('/')[1]?.split(';')[0] || 'jpeg';
+  const filename = `${crypto.randomUUID()}.${ext}`;
 
-    // Redirect
-    if (response.status === 301 || response.status === 302 || response.status === 303 || response.status === 307 || response.status === 308) {
-      const location = response.headers.get('location');
-      if (!location) {
-        throw new Error('Redirect without Location header');
-      }
+  const path = `inlet-photos/${filename}`;
+  const file = bucket.file(path);
 
-      currentUrl = location.startsWith('http') ? location : new URL(location, currentUrl).toString();
+  await pipeline(
+    res.body,
+    file.createWriteStream({
+      resumable: false,
+      metadata: { contentType, cacheControl: 'public, max-age=31536000' },
+    }),
+  );
 
-      continue;
-    }
+  await file.makePublic();
 
-    throw new Error(`Failed to fetch image: ${response.status}`);
-  }
-
-  throw new Error('Too many redirects');
+  return filename;
 }
 
-const processImport = async (snap) => {
-  const data = snap.data();
+const ROWS_PER_RUN = 10;
+const CONCURRENCY = 3;
+const LEASE_MS = 5 * 60 * 1000;
 
-  if (!data?.rows || !Array.isArray(data.rows)) {
-    console.log('Invalid row payload.');
-    await snap.ref.delete();
-    return;
-  }
-
-  const inletRef = db.collection('inlets');
-  const rows = data.rows;
-
-  for (let i = 0; i < rows.length; i += 500) {
-    const batch = db.batch();
-    const slice = rows.slice(i, i + 500);
-
-    for (const row of slice) {
-      if (!row.name || !row.latitude || !row.longitude) return;
-
-      const imageFiles = [];
-
-      if (row.image) {
-        try {
-          console.log(`Fetching image: ${row.image}`);
-          const response = await fetchImageWithRedirects(row.image);
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch image: ${row.image}`);
-          }
-
-          const contentType = response.headers.get('content-type') || 'image/jpeg';
-
-          if (!contentType.startsWith('image/')) {
-            throw new Error(`URL is not an image`);
-          }
-
-          // const buffer = Buffer.from(await response.arrayBuffer());
-
-          const ext = contentType.split('/')[1]?.split(';')[0] || 'jpeg';
-
-          const filename = `${crypto.randomUUID()}.${ext}`;
-          const objectKey = `inlet-photos/${filename}`;
-
-          const file = bucket.file(objectKey);
-
-          const writeStream = file.createWriteStream({
-            resumable: false,
-            metadata: {
-              contentType,
-              cacheControl: 'public, max-age=31536000',
-            },
-          });
-
-          await pipeline(response.body, writeStream);
-
-          await file.makePublic();
-
-          imageFiles.push(filename);
-        } catch (e) {
-          console.error('Image upload failed:', e);
-        }
-      }
-
-      // Dedup Logic
-      const lat = Number(row.latitude);
-      const lng = Number(row.longitude);
-      const geohash = normalizeGeo(lat, lng);
-
-      const existingSnap = await inletRef
-        .where('nickName', '==', row.name)
-        .where('description', '==', row.description || '')
-        .where('geoHash', '==', geohash)
-        .limit(1)
-        .get();
-
-      if (!existingSnap.empty) {
-        const doc = existingSnap.docs[0];
-        const existingData = doc.data();
-
-        const updatedImages = Array.from(new Set([...(existingData.images || []), ...imageFiles]));
-
-        const finalAddress = (existingData.address && existingData.address.trim()) || (row.address && row.address.trim()) || '';
-
-        const isReady = updatedImages.length > 0 && finalAddress.length > 0;
-
-        const updatePayload = {
-          images: updatedImages,
-        };
-
-        if (!existingData.address && finalAddress) {
-          updatePayload.address = finalAddress;
-        }
-
-        if (isReady && existingData.inletStatus !== 'ready') {
-          updatePayload.inletStatus = 'ready';
-        }
-
-        batch.update(doc.ref, updatePayload);
-      } else {
-        const docRef = inletRef.doc();
-
-        batch.set(docRef, {
-          nickName: row.name,
-          address: row.address || '',
-          description: row.description || '',
-          images: imageFiles,
-          geoLocation: new GeoPoint(Number(row.latitude), Number(row.longitude)),
-          geoHash: geohash,
-          inletStatus: row?.address.trim() && imageFiles.length > 0 ? 'ready' : 'photo_needed',
-        });
-      }
-    }
-
-    await batch.commit();
-  }
-
-  await snap.ref.delete();
-};
-
-export const reprocessImports = onRequest(
+export const processImports = onDocumentWritten(
   {
+    document: 'imports/{importId}',
     region: 'us-east4',
     nodeVersion: '20',
     memory: '2GiB',
     timeoutSeconds: 540,
-  },
-  async (req, res) => {
-    const { docId } = req.query.docId;
-
-    let query = db.collection('importQueue');
-
-    if (docId) {
-      const snap = await query.doc(docId).get();
-      if (!snap.exists) {
-        res.status(404).json({ error: 'job not found' });
-        return;
-      }
-
-      await processImport(snap);
-      res.json({ success: true, processed: docId });
-      return;
-    }
-
-    const snaps = await query.get();
-    let processed = 0;
-
-    for (const snap of snaps.docs) {
-      await processImport(snap);
-      processed++;
-    }
-
-    res.json({ success: true, processed });
-  },
-);
-
-export const processImports = onDocumentCreated(
-  {
-    document: 'importQueue/{docId}',
-    region: 'us-east4',
-    nodeVersion: '20',
-    memory: '2GiB', // TEMP
-    timeoutSeconds: 540, // TEMP
+    concurrency: 1,
+    maxInstances: 5,
   },
   async (event) => {
-    const snap = event.data;
+    const after = event.data?.after;
+    if (!after?.exists) return;
 
-    if (!snap) {
-      console.log('No snapshot found.');
-      return;
-    }
-
-    const data = snap.data();
-
-    if (!data?.rows || !Array.isArray(data.rows)) {
-      console.log('Invalid row payload.');
-      await snap.ref.delete();
-      return;
-    }
-
+    const importRef = after.ref;
+    const importData = after.data();
     const inletRef = db.collection('inlets');
-    const rows = data.rows;
 
-    for (let i = 0; i < rows.length; i += 500) {
-      const batch = db.batch();
-      const slice = rows.slice(i, i + 500);
+    // HARD GUARDS
+    if (importData.status !== 'processing') return;
+    if (importData.active !== true) return;
 
-      for (const row of slice) {
-        if (!row.name || !row.latitude || !row.longitude) return;
+    // Lock immediately
+    await importRef.update({
+      active: false,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
-        const imageFiles = [];
+    const rowsSnap = await importRef.collection('rows').where('status', '==', 'queued').limit(ROWS_PER_RUN).get();
 
-        if (row.image) {
+    if (rowsSnap.empty) {
+      await importRef.update({
+        status: 'done',
+        completedAt: FieldValue.serverTimestamp(),
+      });
+      return;
+    }
+
+    const limit = pLimit(CONCURRENCY);
+    const now = Date.now();
+
+    await Promise.allSettled(
+      rowsSnap.docs.map((doc) =>
+        limit(async () => {
+          const rowRef = doc.ref;
+          const row = doc.data();
+
+          await rowRef.update({
+            status: 'processing',
+            leaseUntil: Timestamp.fromMillis(now + LEASE_MS),
+            attempts: FieldValue.increment(1),
+          });
+
           try {
-            console.log(`Fetching image: ${row.image}`);
-            const response = await fetchImageWithRedirects(row.image);
+            let images = [];
 
-            if (!response.ok) {
-              throw new Error(`Failed to fetch image: ${row.image}`);
+            if (row.image) {
+              images.push(await streamImageToGCS(row.image));
             }
 
-            const contentType = response.headers.get('content-type') || 'image/jpeg';
+            // Deduplication logic
+            const lat = Number(row.latitude);
+            const lng = Number(row.longitude);
+            const geohash = normalizeGeo(lat, lng);
 
-            if (!contentType.startsWith('image/')) {
-              throw new Error(`URL is not an image`);
+            const existingSnap = await inletRef
+              .where('nickName', '==', row.name)
+              .where('description', '==', row.description || '')
+              .where('geoHash', '==', geohash)
+              .limit(1)
+              .get();
+
+            if (!existingSnap.empty) {
+              const existingDoc = existingSnap.docs[0];
+              const existingData = existingDoc.data();
+
+              let finalImages = [];
+
+              if (existingData.inletStatus === 'photo_needed') {
+                finalImages = images;
+              } else {
+                finalImages = Array.from(new Set([...(existingData.images || []), ...images]));
+              }
+
+              const finalAddress = (existingData.address && existingData.address.trim()) || (row.address && row.address.trim()) || '';
+              const isReady = finalImages.length > 0 && finalAddress.length > 0;
+
+              const updatePayload = {
+                images: finalImages,
+              };
+
+              if (!existingData.address && finalAddress) {
+                updatePayload.address = finalAddress;
+              }
+
+              if (isReady && existingData.inletStatus !== 'ready') {
+                updatePayload.inletStatus = 'ready';
+              }
+
+              await existingDoc.ref.update(updatePayload);
+            } else {
+              await inletRef.add({
+                nickName: row.name,
+                address: row.address || '',
+                description: row.description || '',
+                images: images,
+                geoLocation: new GeoPoint(Number(row.latitude), Number(row.longitude)),
+                geoHash: geohash,
+                inletStatus: row?.address.trim() && images.length > 0 ? 'ready' : 'photo_needed',
+              });
             }
 
-            // const buffer = Buffer.from(await response.arrayBuffer());
-
-            const ext = contentType.split('/')[1]?.split(';')[0] || 'jpeg';
-
-            const filename = `${crypto.randomUUID()}.${ext}`;
-            const objectKey = `inlet-photos/${filename}`;
-
-            const file = bucket.file(objectKey);
-
-            const writeStream = file.createWriteStream({
-              resumable: false,
-              metadata: {
-                contentType,
-                cacheControl: 'public, max-age=31536000',
-              },
+            await rowRef.update({
+              status: 'done',
             });
 
-            await pipeline(response.body, writeStream);
+            await importRef.update({
+              processedRows: FieldValue.increment(1),
+              successRows: FieldValue.increment(1),
+            });
+          } catch (err) {
+            console.error('Row failed:', err);
 
-            // await file.save(buffer, {
-            //   metadata: {
-            //     contentType,
-            //     cacheControl: 'public, max-age=31536000',
-            //   },
-            //   resumable: false,
-            // });
+            await rowRef.update({
+              status: 'error',
+              lastError: err.message,
+            });
 
-            await file.makePublic();
-
-            imageFiles.push(filename);
-          } catch (e) {
-            console.error('Image upload failed:', e);
+            await importRef.update({
+              processedRows: FieldValue.increment(1),
+              failedRows: FieldValue.increment(1),
+            });
           }
-        }
+        }),
+      ),
+    );
 
-        // Dedup Logic
-        const lat = Number(row.latitude);
-        const lng = Number(row.longitude);
-        const geohash = normalizeGeo(lat, lng);
-
-        const existingSnap = await inletRef
-          .where('nickName', '==', row.name)
-          .where('description', '==', row.description || '')
-          .where('geoHash', '==', geohash)
-          .limit(1)
-          .get();
-
-        if (!existingSnap.empty) {
-          const doc = existingSnap.docs[0];
-          const existingData = doc.data();
-
-          const updatedImages = Array.from(new Set([...(existingData.images || []), ...imageFiles]));
-
-          const finalAddress = (existingData.address && existingData.address.trim()) || (row.address && row.address.trim()) || '';
-
-          const isReady = updatedImages.length > 0 && finalAddress.length > 0;
-
-          const updatePayload = {
-            images: updatedImages,
-          };
-
-          if (!existingData.address && finalAddress) {
-            updatePayload.address = finalAddress;
-          }
-
-          if (isReady && existingData.inletStatus !== 'ready') {
-            updatePayload.inletStatus = 'ready';
-          }
-
-          batch.update(doc.ref, updatePayload);
-        } else {
-          const docRef = inletRef.doc();
-
-          batch.set(docRef, {
-            nickName: row.name,
-            address: row.address || '',
-            description: row.description || '',
-            images: imageFiles,
-            geoLocation: new GeoPoint(Number(row.latitude), Number(row.longitude)),
-            geoHash: geohash,
-            inletStatus: row?.address.trim() && imageFiles.length > 0 ? 'ready' : 'photo_needed',
-          });
-        }
-      }
-
-      await batch.commit();
-    }
-
-    await snap.ref.delete();
+    await importRef.update({
+      active: true,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
   },
 );
